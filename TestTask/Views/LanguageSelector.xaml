@@ -1,0 +1,84 @@
+﻿<UserControl x:Class="TestTask.Views.LanguageSelector"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:TestTask.Views"
+             xmlns:viewModels="clr-namespace:TestTask.ViewModels"
+             xmlns:common="clr-namespace:TestTask.Common"
+             xmlns:models="clr-namespace:TestTask.Models"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="400">
+    <UserControl.DataContext>
+        <viewModels:LanguageSelectorViewModel/>
+    </UserControl.DataContext>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="Select folder" common:Translator.LangKey="{x:Static models:LangKeys.JsonFolder}"/>
+            <TextBox Grid.Column="1" Text="{Binding JsonPath}" ToolTip="{Binding JsonPath}" VerticalContentAlignment="Center" />
+            <Button Grid.Column="2" Content="..." FontSize="20" Padding="0" Width="30" Height="25" FontWeight="Bold" 
+                    VerticalContentAlignment="Top" Command="{Binding ChangeFolderCommand}">
+                <Button.ToolTip>
+                    <Label common:Translator.LangKey="{x:Static models:LangKeys.ChangeFolder}" Margin="0"/>
+                </Button.ToolTip>
+            </Button>
+            <Button Grid.Column="3" Padding="0" Width="30" Height="25" Command="{Binding OpenFolderCommand}">
+                <Button.ToolTip>
+                    <Label common:Translator.LangKey="{x:Static models:LangKeys.OpenFolder}" Margin="0"/>
+                </Button.ToolTip>
+                <Image Source="/TestTask;component/Images/OpenFolder.png"></Image>
+            </Button>
+        </Grid>
+        <GroupBox Grid.Row="1" Grid.Column="0" Header="Langs" Margin="3" common:Translator.LangKey="{x:Static models:LangKeys.AvailableLanguages}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <ListBox Grid.Row="0" ItemsSource="{Binding LangContainers}" SelectedItem="{Binding SelectedMessageContainer}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Border CornerRadius="5" BorderBrush="Aqua" BorderThickness="1">
+                                <TextBlock FontSize="16">
+                                    <TextBlock Text="{Binding LocaleName}" FontWeight="Bold" Foreground="HotPink"/>
+                                    <TextBlock Text=" - " />
+                                    <TextBlock Text="{Binding FileInfo.Name}" />
+                                </TextBlock>
+                            </Border>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem">
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                </ListBox>
+                <TextBlock Grid.Row="1" Text="{Binding Status}" Foreground="Coral" TextWrapping="Wrap"/>
+            </Grid>
+        </GroupBox>
+        <Grid Grid.Row="1" Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <TextBlock FontSize="16" Text="Description" common:Translator.LangKey="{x:Static models:LangKeys.ProgramDescription}" 
+                       TextWrapping="Wrap" VerticalAlignment="Top" Margin="5"/>
+            <Button Grid.Row="1" Content="Create test JSONs" common:Translator.LangKey="{x:Static models:LangKeys.CreateTestTranslations}" Margin="5"
+                    Command="{Binding CreateTestJsonsCommand}"/>
+        </Grid>
+    </Grid>
+</UserControl>

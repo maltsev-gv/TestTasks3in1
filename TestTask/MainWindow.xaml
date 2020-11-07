@@ -1,0 +1,44 @@
+﻿<Window x:Class="TestTask.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TestTask"
+        xmlns:common="clr-namespace:TestTask.Common"
+        xmlns:models="clr-namespace:TestTask.Models"
+        xmlns:views="clr-namespace:TestTask.Views"
+        xmlns:viewModels="clr-namespace:TestTask.ViewModels"
+        WindowStartupLocation="CenterScreen"
+        mc:Ignorable="d"
+        Icon="Images/Icon.png"
+        Title="Test task" Height="600" Width="800">
+    <Grid>
+        <TabControl Margin="5">
+            <TabItem Header="Language" common:Translator.LangKey="{x:Static models:LangKeys.LanguageTitle}">
+                <views:LanguageSelector/>
+            </TabItem>
+            <TabItem Header="Sender &amp; Listener" common:Translator.LangKey="{x:Static models:LangKeys.SenderAndListenerTitle}">
+                <views:SenderAndListener/>
+            </TabItem>
+
+            <TabItem Header="SQL Scripts" common:Translator.LangKey="{x:Static models:LangKeys.SqlScripts}">
+                <views:SqlScripts/>
+            </TabItem>
+
+            <TabItem Header="About" common:Translator.LangKey="{x:Static models:LangKeys.AboutTitle}">
+                <StackPanel >
+                    <StackPanel.DataContext>
+                        <viewModels:AboutViewModel/>
+                    </StackPanel.DataContext>
+                    <Label Content="Copyleft &#x00a9; by G. Maltsev" common:Translator.LangKey="{x:Static models:LangKeys.Copyleft}" FontSize="20"/>
+                    <Button HorizontalAlignment="Left" Margin="5" Command="{Binding OpenWinWordCommand}">
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="/TestTask;component/Images/WinWord.png" Width="40"/>
+                            <TextBlock Text="Open task document" FontSize="20" Margin="15,0" common:Translator.LangKey="OpenTaskDocument"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Window>

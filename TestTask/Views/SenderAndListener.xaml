@@ -1,0 +1,192 @@
+﻿<UserControl x:Class="TestTask.Views.SenderAndListener"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:TestTask.Views"
+             xmlns:viewModels="clr-namespace:TestTask.ViewModels"
+             xmlns:common="clr-namespace:TestTask.Common"
+             xmlns:models="clr-namespace:TestTask.Models"
+             xmlns:primitives="clr-namespace:TestTask.Primitives"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.DataContext>
+        <viewModels:SenderAndListenerViewModel/>
+    </UserControl.DataContext>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right">
+            <TextBlock Text="Request are sending to" common:Translator.LangKey="RequestsSendingTo" />
+            <TextBox IsReadOnly="True" Text="{Binding LocalAddress, Mode=OneWay}" VerticalContentAlignment="Center" Background="Transparent"/>
+            <Button HorizontalAlignment="Right" Margin="5" Background="Transparent" BorderThickness="0" Padding="0"
+                    Command="{Binding CopyUrlCommand}">
+                <Button.ToolTip>
+                    <TextBlock Text="Copy URL" common:Translator.LangKey="CopyUrl" />
+                </Button.ToolTip>
+                <Image Source="/TestTask;component/Images/Copy.png" Width="15"/>
+            </Button>
+
+        </StackPanel>
+        <TextBlock Grid.Row="1" Grid.Column="0" Text="Client" common:Translator.LangKey="Client" HorizontalAlignment="Center" FontSize="20"/>
+        <TextBlock Grid.Row="1" Grid.Column="1" Text="Server" common:Translator.LangKey="Server" HorizontalAlignment="Center" FontSize="20"/>
+        <ListView Grid.Row="2" Grid.Column="0" ItemsSource="{Binding Requests}" Margin="2,0">
+            <ListView.View>
+                <!--<GridView d:DataContext="{d:DesignInstance {x:Type models:SenderStatus}}">-->
+                <GridView >
+                    <GridViewColumn Header="Number" common:Translator.LangKey="Number">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding RequestNumber}" FontSize="16" Foreground="Blue" HorizontalAlignment="Center"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="Thread Id" common:Translator.LangKey="ThreadId">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding ThreadId}" FontSize="16" Foreground="Magenta" HorizontalAlignment="Center"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="Status" common:Translator.LangKey="Status" Width="175">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Status}" HorizontalAlignment="Center" ToolTip="{Binding Status}"
+                                           Foreground="Black">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsSuccess}" Value="True">
+                                                    <Setter Property="Foreground" Value="Green"/>
+                                                    <DataTrigger.EnterActions>
+                                                        <BeginStoryboard>
+                                                            <Storyboard>
+                                                                <ThicknessAnimation Storyboard.TargetProperty="Margin" From="100,0,0,0" To="0,0,0,0" Duration="0:0:0.5" />
+                                                                <ColorAnimation Storyboard.TargetProperty="(TextBlock.Foreground).(SolidColorBrush.Color)" From="Aquamarine" To="DarkGreen" Duration="0:0:2" />
+                                                                <ColorAnimation Storyboard.TargetProperty="(TextBlock.Foreground).(SolidColorBrush.Color)" BeginTime="0:0:2" From="DarkGreen" To="Green" Duration="0:0:1" />
+                                                            </Storyboard>
+                                                        </BeginStoryboard>
+                                                    </DataTrigger.EnterActions>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding IsSuccess}" Value="False">
+                                                    <Setter Property="Foreground" Value="Red"/>
+                                                    <DataTrigger.EnterActions>
+                                                        <BeginStoryboard>
+                                                            <Storyboard >
+                                                                <ThicknessAnimation Storyboard.TargetProperty="Margin" From="100,0,0,0" To="0,0,0,0" Duration="0:0:0.5" />
+                                                                <ColorAnimation Storyboard.TargetProperty="(TextBlock.Foreground).(SolidColorBrush.Color)" From="LightPink" To="DarkRed" Duration="0:0:2" />
+                                                                <ColorAnimation Storyboard.TargetProperty="(TextBlock.Foreground).(SolidColorBrush.Color)" BeginTime="0:0:2" From="DarkRed" To="Red" Duration="0:0:1" />
+                                                            </Storyboard>
+                                                        </BeginStoryboard>
+                                                    </DataTrigger.EnterActions>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="Time, ms" common:Translator.LangKey="TimeMs">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding DurationMs}" HorizontalAlignment="Center"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <Grid Grid.Row="3" Grid.Column="0" >
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Button Margin="3" Command="{Binding SendRequestsCommand}" Grid.Column="0">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Send" common:Translator.LangKey="Send"/>
+                    <primitives:NumbersTextBox x:Name="requestsTextBox" Width="40" AllowDouble="False" AllowNegative="False" 
+                                               Value="{Binding RequestsCount}" VerticalContentAlignment="Center"/>
+                    <ScrollBar Tag="{Binding ElementName=requestsTextBox}" Scroll="ScrollBar_OnScroll" Minimum="0" Maximum="20000" Value="10000"/>
+                    <TextBlock Text="{Binding RequestInCase}"/>
+                </StackPanel>
+            </Button>
+            <Button Grid.Column="1" HorizontalAlignment="Right" Margin="5" Background="Transparent" BorderThickness="0" Padding="0"
+                    Command="{Binding ClearRequestsCommand}">
+                <Button.ToolTip>
+                    <TextBlock Text="Clear list" common:Translator.LangKey="ClearRequestList" />
+                </Button.ToolTip>
+                <Image Source="/TestTask;component/Images/ClearRequestList.png" Width="30"/>
+            </Button>
+        </Grid>
+
+
+        <ListView Grid.Row="2" Grid.Column="1" ItemsSource="{Binding ListenerStatuses}" Margin="2,0">
+            <ListView.View>
+                <!--<GridView d:DataContext="{d:DesignInstance {x:Type models:ListenerStatus}}">-->
+                <GridView >
+                    <GridViewColumn Header="Time" common:Translator.LangKey="Time" Width="85">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding TimeReceived, StringFormat='HH:mm:ss.fff'}" HorizontalAlignment="Center"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="Req.Number" common:Translator.LangKey="ReqNumber">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding RequestNumber}" FontSize="16" Foreground="Blue" HorizontalAlignment="Center"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="Thread Id" common:Translator.LangKey="ThreadId">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding ThreadId}" FontSize="16" Foreground="Magenta" HorizontalAlignment="Center"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="Status" common:Translator.LangKey="Status" Width="150">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Status}" HorizontalAlignment="Center" ToolTip="{Binding Status}">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsSuccess}" Value="True">
+                                                    <Setter Property="Foreground" Value="Green"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding IsSuccess}" Value="False">
+                                                    <Setter Property="Foreground" Value="Red"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <Grid Grid.Row="3" Grid.Column="1">
+            <CheckBox IsChecked="{Binding EnableListening}" Content="Enable listening" common:Translator.LangKey="EnableListening" 
+              Margin="5" FontSize="14" FontWeight="Bold" VerticalContentAlignment="Center" HorizontalAlignment="Left"/>
+            <Button HorizontalAlignment="Right" Margin="5" Background="Transparent" BorderThickness="0" Padding="0"
+                    Command="{Binding ClearStatusesCommand}">
+                <Button.ToolTip>
+                    <TextBlock Text="Clear list" common:Translator.LangKey="ClearResponseList" />
+                </Button.ToolTip>
+                <Image Source="/TestTask;component/Images/ClearResponseList.png" Width="30"/>
+            </Button>
+        </Grid>
+    </Grid>
+</UserControl>
