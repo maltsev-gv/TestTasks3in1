@@ -50,7 +50,8 @@
         SqlScripts,
         CopyScript,
         SaveZippedDb,
-        OpenTaskDocument
+        OpenTaskDocument,
+        YouCanSortColumns
     }
 
     public enum DisplayingScripts

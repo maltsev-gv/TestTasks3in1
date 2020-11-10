@@ -41,6 +41,7 @@
     "clearResponseList": "Очистить список ответов",
     "clearRequestList": "Очистить список запросов",
     "requestsSendingTo": "Запросы отправляются на",
+    "youCanSortColumns": "Вы можете сортировать столбцы, щёлкая по их заголовкам",
     "copyUrl": "Скопировать в буфер обмена",
     "entireScript": "Весь скрипт",
     "databaseCreating": "Создание БД и таблиц",

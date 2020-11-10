@@ -41,6 +41,7 @@
     "clearResponseList": "Clear response list",
     "clearRequestList": "Clear request list",
     "requestsSendingTo": "Requests are sending to",
+    "youCanSortColumns": "You can sort columns by clicking on their headers",
     "copyUrl": "Copy URL to Clipboard",
     "entireScript": "Entire script",
     "databaseCreating": "Creating database and tables",
