@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Windows;
-using TestTask.Common;
 using TestTask.Models;
-using TestTask.Services;
 
 namespace TestTask
 {
@@ -15,6 +13,10 @@ namespace TestTask
         private static MessageContainer _messageContainer;
         public static event EventHandler MessageContainerChanged;
 
+        /// <summary>
+        /// Основной компонент, необходимый для переводов интерфейса и внутренних строк. Устанавливается методом
+        /// LanguageSelectorViewModel.SetNewLanguage. Выбирается в зависимости от текущей локали Windows либо от желания пользователя
+        /// </summary>
         public static MessageContainer MessageContainer
         {
             get => _messageContainer;
@@ -33,6 +35,9 @@ namespace TestTask
             ServicePointManager.DefaultConnectionLimit = 10000;
         }
 
+        /// <summary>
+        /// Обработчик неперехваченных ранее исключений
+        /// </summary>
         private void App_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
         {
             MessageBox.Show(e.Exception.ToString(), MessageContainer?[LangKeys.UnhandledException] ?? "Any exception thrown");

@@ -19,19 +19,26 @@ namespace TestTask.ViewModels
     {
         public SenderAndListenerViewModel()
         {
+            // число запросов по умолчанию
             RequestsCount = Settings.Default.DefaultRequestsCount;
+            // если юзер поменяет язык - надо обновить свойство RequestInCase
             App.MessageContainerChanged += App_MessageContainerChanged;
+            // включаем прослушивание
             EnableListening = true;
         }
 
+        // счётчик запросов
         private int _currentRequestNumber = 1;
-        private HttpHelper _httpHelper = new HttpHelper();
+        private readonly HttpHelper _httpHelper = new HttpHelper();
 
         private void App_MessageContainerChanged(object sender, System.EventArgs e)
         {
             RaisePropertyChanged(nameof(RequestInCase));
         }
 
+        /// <summary>
+        /// Коллекция запросов. Не должна быть пустой (инициализируется при первом чтении). При пересоздании вызывает RaisePropertyChanged()
+        /// </summary>
         public ObservableCollection<RequestStatus> Requests
         {
             get
@@ -42,6 +49,10 @@ namespace TestTask.ViewModels
             set => SetVal(value);
         }
 
+        /// <summary>
+        /// Коллекция статусов прослушивателя. Не должна быть пустой (инициализируется при первом чтении).
+        /// При пересоздании вызывает RaisePropertyChanged()
+        /// </summary>
         public ObservableCollection<ListenerStatus> ListenerStatuses
         {
             get
@@ -53,12 +64,20 @@ namespace TestTask.ViewModels
         }
 
 
+        /// <summary>
+        /// Число запросов по одному нажатию кнопки. Настраивается во вьюшке с помощью контрола NumbersTextBox
+        /// При изменении обновляет зависимую от RequestsCount строку RequestInCase
+        /// </summary>
         public int RequestsCount
         {
             get => GetVal<int>();
             set => SetVal(value, () => RaisePropertyChanged(nameof(RequestInCase)));
         }
 
+        /// <summary>
+        /// Слово "запрос"/"запросы"/"запросов". Зависит от языка и значения RequestsCount.
+        /// При отсутствии перевода в контейнере возвращает "requests"
+        /// </summary>
         public string RequestInCase
         {
             get
@@ -73,6 +92,10 @@ namespace TestTask.ViewModels
             }
         }
 
+        /// <summary>
+        /// Команда создания RequestsCount запросов к хосту.
+        /// Создаваемые объекты RequestStatus получают уникальный номер и сразу создают HTTP-запрос
+        /// </summary>
         public ICommand SendRequestsCommand => new RelayCommand(_ =>
         {
             for (int i = 0; i < RequestsCount; i++)
@@ -81,17 +104,26 @@ namespace TestTask.ViewModels
             }
         });
 
+        /// <summary>
+        /// Команда очистки списка ответов.
+        /// </summary>
         public ICommand ClearStatusesCommand => new RelayCommand(_ =>
         {
             ListenerStatuses.Clear();
         });
 
+        /// <summary>
+        /// Команда очистки списка запросов. Перед удалением каждого запроса делается попытка его отменить
+        /// </summary>
         public ICommand ClearRequestsCommand => new RelayCommand(_ =>
         {
             Requests.ForEach(ss => ss.AbortRequest());
             Requests.Clear();
         });
 
+        /// <summary>
+        /// Свойство, связанное с чекбоксом "Разрешить прослушивание" на вьюшке. При изменении запускает/останавливает лисенер
+        /// </summary>
         public bool? EnableListening
         {
             get => GetVal<bool?>();
@@ -105,6 +137,9 @@ namespace TestTask.ViewModels
             Clipboard.SetDataObject(LocalAddress);
         });
 
+        /// <summary>
+        /// Сортировщик любой коллекции. Требует связки LangKey -> PropertyName
+        /// </summary>
         private ObservableCollection<T> SortCollection<T>(IEnumerable<T> sourceEnumerable, ref (LangKeys key, bool asc) lastKeyTuple, LangKeys langKey,
             Dictionary<LangKeys, string> keyToPropNamesDictionary) where T : ObservableObject
         {

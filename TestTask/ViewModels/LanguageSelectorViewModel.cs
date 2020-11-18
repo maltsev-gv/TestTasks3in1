@@ -19,12 +19,15 @@ namespace TestTask.ViewModels
     {
         public LanguageSelectorViewModel()
         {
+            // ждём события обновления json-файлов в каталоге JsonPath
             MessageContainerService.FilesChanged += MessageContainerService_FilesChanged;
+            // запускаем таймер для перечитывания каталога с json-файлами
             UpdateLangFiles();
         }
 
         private void MessageContainerService_FilesChanged(object sender, EventArgs e)
         {
+            // в newContainers приходят все найденные локали, в т.ч. ранее прочитанные. Разбираем их на новые, обновленные и удалённые
             var newContainers = MessageContainerService.MessageContainers;
             var newLocales = newContainers
                 .Where(nc => LangContainers.All(lc => lc.FileInfo.FullName != nc.FileInfo.FullName)).ToArray();
@@ -33,12 +36,14 @@ namespace TestTask.ViewModels
             var removedLocales = LangContainers.Where(lc => newContainers.All(nc => lc.FileInfo != nc.FileInfo)
                 && !updatedLocales.Any(ul => ul.LocaleName == lc.LocaleName)).ToArray();
 
+            // при запуске программы или после появления первого json (если ранее их не было), выбираем текущую локаль Windows
             if (SelectedMessageContainer == null)
             {
                 var localeName = CultureInfo.CurrentUICulture.Name.ToLower();
                 SelectedMessageContainer = newContainers.FirstOrDefault(nc => nc.LocaleName.ToLower() == localeName)
                                            ?? newContainers.FirstOrDefault(nc => localeName.StartsWith(nc.LocaleName.ToLower()));
             }
+            // или восстанавливаем ранее выбранную локаль
             else
             {
                 SelectedMessageContainer = newContainers.FirstOrDefault(nc => nc.LocaleName == SelectedMessageContainer.LocaleName)
@@ -48,11 +53,13 @@ namespace TestTask.ViewModels
             var status = new StringBuilder();
             if (SelectedMessageContainer != null)
             {
+                // собираем строку статуса, чтобы сообщить, какие локали нашли/потеряли
                 AppendStatus(status, newLocales, LangKeys.LocalesRead);
                 AppendStatus(status, updatedLocales, LangKeys.LocalesUpdated);
                 AppendStatus(status, removedLocales, LangKeys.LocalesRemoved);
             }
 
+            // обновляем интерфейс в главном потоке (событие было вызвано из фонового)
             ThreadHelper.RunInMainThread(() =>
             {
                 var selectedContainer = SelectedMessageContainer;
@@ -76,6 +83,10 @@ namespace TestTask.ViewModels
             }
         }
 
+        /// <summary>
+        /// Путь к каталогу с json-файлами локалей.
+        /// Его изхменение приводит к перезапуску таймера обновления католога и считыванию новых файлов
+        /// </summary>
         public string JsonPath
         {
             get
@@ -86,20 +97,32 @@ namespace TestTask.ViewModels
             set => SetVal(value, UpdateLangFiles);
         }
 
+        /// <summary>
+        /// Список найденных локалей (контейнеров)
+        /// </summary>
         public ObservableCollection<MessageContainer> LangContainers { get; } = new ObservableCollection<MessageContainer>();
 
+        /// <summary>
+        /// Строка состояния
+        /// </summary>
         public string Status
         {
             get => GetVal<string>();
             set => SetVal(value);
         }
 
+        /// <summary>
+        /// Выбранный контейнер. Его изменение приводит к вызову метода SetNewLanguage(), который обновляет интерфейс
+        /// </summary>
         public MessageContainer SelectedMessageContainer
         {
             get => GetVal<MessageContainer>();
             set => SetVal(value, SetNewLanguage);
         }
 
+        /// <summary>
+        /// Команда "Сменить каталог". Вызывается с кнопки. После смены катлога вызывается метод UpdateLangFiles()
+        /// </summary>
         public ICommand ChangeFolderCommand => new RelayCommand(_ =>
         {
             using (var dialog = new FolderBrowserDialog())
@@ -112,6 +135,9 @@ namespace TestTask.ViewModels
             }
         });
 
+        /// <summary>
+        /// Команда "Открыть текущий каталог". Вызывается с кнопки. 
+        /// </summary>
         public ICommand OpenFolderCommand => new RelayCommand(_ =>
         {
             using (var process = new Process())
@@ -121,12 +147,19 @@ namespace TestTask.ViewModels
             }
         });
 
+        /// <summary>
+        /// Команда "Создать в текущем каталоге дефолтные контейнеры с локалями". Вызывается с кнопки. 
+        /// </summary>
         public ICommand CreateTestJsonsCommand => new RelayCommand(_ =>
         {
             TestContainersCreator.SaveAllContainers();
             JsonPath = new DirectoryInfo(Settings.Default.DefaultJsonPath).FullName;
         });
 
+        /// <summary>
+        /// Установка нового языка интерфейса. Вызывается после смены выбранного контейнера. Обновляет строку статуса и зовёт метод
+        /// Translator.UpdateElems() из главного потока
+        /// </summary>
         private void SetNewLanguage()
         {
             if (SelectedMessageContainer?[LangKeys.SelectedLocale] != null)
@@ -138,6 +171,9 @@ namespace TestTask.ViewModels
             ThreadHelper.RunInMainThread(() => Translator.UpdateElems(SelectedMessageContainer));
         }
 
+        /// <summary>
+        /// Перезапуск таймера и перечитывание json-файлов после смены JsonPath
+        /// </summary>
         private void UpdateLangFiles()
         {
             if (!JsonPath.IsNullOrWhiteSpace())

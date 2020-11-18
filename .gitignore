@@ -35,3 +35,4 @@ TestTask.sln.DotSettings.user
 TestTask/bin/
 TestTask/obj/Debug/App.g.cs
 TestTask/obj/
+packages/
